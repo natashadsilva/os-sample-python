@@ -1,5 +1,5 @@
 from flask import Flask
-application = Flask(__name__, template_folder="../public", static_folder="../public", static_url_path='')
+application = Flask(__name__, template_folder="public", static_folder="public", static_url_path='')
 
 
 @application.route("/")
