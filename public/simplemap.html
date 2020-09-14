@@ -124,7 +124,8 @@ html,body,#map-canvas {
            addMarkersToLayer(markerLayers, markers, response);
       }   
       
-      var urldata = "https://ndproxy-tooling-54-cpd.apps.cpstreamsx6.cp.fyre.ibm.com/NextBus/ports/input/0/tuples"
+      var url = prompt("Streams Proxy URL");
+      var urldate = url +  "/NextBus/ports/input/0/tuples"
       // retrieve data from HTTPTupleView
       periodicUpdateJSON(urldata, updatePeriod, _addMarkersToMap);
     }
