@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<!-- Copyright (C) 2015, International Business Machines Corporation  -->
+<!-- All Rights Reserved                                            -->
+<html>
+<head>
+<title>Simple Map</title>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+<meta charset="utf-8">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/lib/OpenLayers.js"></script>
+<script src="openlayersutils.js"></script>
+
+<style>
+html,body,#map-canvas {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+</style>
+</head>
+<body>
+  <div id="test"></div>
+  <div id="map-canvas"></div>
+  <script>
+      
+    localTimeString = function(seconds) { return new Date(seconds*1000).toLocaleTimeString(); };
+    localTimestampString = function(seconds) { return new Date(seconds*1000).toLocaleString(); };
+    localTimeMillisString = function(ms) { return new Date(ms).toLocaleString(); };
+
+    fmtLink = function(path) {
+    return '<a href="' + path + '">' + path + '</a>';
+    }
+      function getParams() {
+			var url = window.location.search;
+			var params = {};
+			var pairs = url.substring(url.indexOf('?') + 1).split('&');
+			for ( var i = 0; i < pairs.length; i++) {
+				var pair = pairs[i].split('=');
+				params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+			}
+			return params;
+		}
+    var qp = getParams();
+    
+    var updatePeriod = 2; //every 5 seconds
+    if ("period" in qp) {
+        updatePeriod = qp["period"];
+    }
+    
+    function initialize() {
+      var map_options = {
+        div : this.mapDiv,
+        allOverlays : false,
+        maxExtent : this.mapExtent,
+        controls : [ new OpenLayers.Control.DragPan(),
+                     new OpenLayers.Control.Navigation(),
+                     new OpenLayers.Control.PanZoomBar(),
+                     new OpenLayers.Control.ScaleLine(),
+                     new OpenLayers.Control.MousePosition(),
+                     new OpenLayers.Control.LayerSwitcher() ]
+      };
+      var map = new OpenLayers.Map('map-canvas', map_options);
+      // Avoid http cross-origin issues
+      // See https://github.com/eclipse/sumo/issues/3991#issue-314263257
+      map.addLayer(new OpenLayers.Layer.OSM(
+        "OpenStreetMap", 
+        // Official OSM tileset as forced HTTPS URLs
+        [
+            'https://a.tile.openstreetmap.org/${z}/${x}/${y}.png',
+            'https://b.tile.openstreetmap.org/${z}/${x}/${y}.png',
+            'https://c.tile.openstreetmap.org/${z}/${x}/${y}.png'
+        ], null));
+
+      // create marker layer
+      var markerLayers = {};
+      markerLayers["Markers"] = createMarkerLayer(map, "Markers");
+      
+    var file = "fences.json";
+    var geofenceLayer = new OpenLayers.Layer.Vector("Geofences", {
+        styleMap: new OpenLayers.StyleMap({
+        "default": new OpenLayers.Style({
+            fillColor: "#33CC00",
+            strokeColor: "#000000",
+            strokeWidth: 2
+        })
+        })
+    });
+    map.addLayer(geofenceLayer);
+    
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function() {
+        if (request.readyState == 4 && request.status == 200) {
+        addGeofences(request.responseText);
+        }
+    }
+    request.open("GET", file, true);
+    request.send(null);
+
+    addGeofences = function(contents) {
+        var records = JSON.parse(contents);
+        var wktParser = new OpenLayers.Format.WKT;
+        var epsg4326 = new OpenLayers.Projection("EPSG:4326");   
+        var mapProjection = geofenceLayer.map.getProjectionObject();
+        var colors = ["Green", "Purple", "Red", "#000080"];
+        var polygons = [];
+
+        for (var i = 0; i < records.length; i++) {
+            var poly = records[i];    
+            var fenceId = poly.id;
+            var polygon = wktParser.read(poly.wkt);   
+            polygon.geometry.transform(epsg4326, mapProjection);
+            polygon.fid = fenceId;
+            polygon.style = {strokeColor: colors[i%4],strokeOpacity: 1,strokeWidth: 3,fillColor: "#FF9966",fillOpacity: 0.2};
+            polygons.push(polygon);
+        }
+
+        geofenceLayer.addFeatures(polygons);
+        geofenceLayer.map.zoomToExtent(geofenceLayer.getDataExtent());
+      }
+
+      var markers = {};
+      
+      function _addMarkersToMap(response) {
+           addMarkersToLayer(markerLayers, markers, response);
+      }   
+      
+      var urldata = "https://ndproxy-tooling-54-cpd.apps.cpstreamsx6.cp.fyre.ibm.com/NextBus/ports/input/0/tuples"
+      // retrieve data from HTTPTupleView
+      periodicUpdateJSON(urldata, updatePeriod, _addMarkersToMap);
+    }
+
+    initialize();
+  </script>
+</body>
+</html>
