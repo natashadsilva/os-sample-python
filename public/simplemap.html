@@ -3,7 +3,7 @@
 <!-- All Rights Reserved                                            -->
 <html>
 <head>
-<title>Simple Map</title>
+<title>Buses Monitor</title>
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
 <meta charset="utf-8">
 
@@ -125,7 +125,7 @@ html,body,#map-canvas {
       }   
       
       var url = prompt("Streams App URL");
-      var urldata = url +  "/NextBus/MapViewer/ports/input/0/tuples"
+      var urldata = "/data?url="+url
       // retrieve data from HTTPTupleView
       periodicUpdateJSON(urldata, updatePeriod, _addMarkersToMap);
     }

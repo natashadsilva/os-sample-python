@@ -152,12 +152,15 @@ addMarkersToLayer = function(markerLayers, markers, response) {
    // Remove any markers for which there was no new value
    for (var id in markers) {
       if (markers.hasOwnProperty(id) && updated.indexOf(id) == -1) {
-         var markerLayer = marker.__splLayer;
-         marker.__splLayer == undefined;
-         markerLayer.removeMarker(markers[id]);
-         markers[id].spltuple = null;
-         markers[id].style.icon = null;
-         delete markers[id];
+         var marker = markers[id];
+         if (marker != null) {
+            var markerLayer = marker.__splLayer;
+            marker.__splLayer == undefined;
+            markerLayer.removeMarker(markers[id]);
+            markers[id].spltuple = null;
+            markers[id].style.icon = null;
+            delete markers[id];
+         }
       }
    }
 }
