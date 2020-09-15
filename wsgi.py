@@ -11,7 +11,7 @@ application = Flask(__name__, template_folder="public", static_folder="public", 
 @application.route("/data")
 def tuples():
     url = request.args.get("url")
-    resp = requests.get(url +"/NextBus/MapViewer/ports/input/0/tuples",verify=False)
+    resp = requests.get(url +"/Visualization/MapViewer/ports/input/0/tuples",verify=False)
     if (resp.status_code >= 200 and resp.status_code < 300):
         return jsonify(resp.json())
 
