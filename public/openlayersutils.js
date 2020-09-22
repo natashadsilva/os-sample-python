@@ -32,23 +32,38 @@ JSONreplacer = function(key, value)
 // otherwise produce a "pretty" version
 // of the tuple using JSON.
 makePopupText = function(tuple) {
-   if (tuple.note != undefined)
-       return tuple.note;
-   
-   return JSON.stringify(tuple, JSONreplacer, "<br />")
-               .replace(/["{}]/g, "")   // get rid of JSON delimiters
-               .substring(7);           // skip the first newline
+      msg = "<span style='font-weight: bold;'>Bus "+tuple.id+"</span>";
+      if (tuple.data != undefined){
+         if (tuple.data.isEntry == "1"){
+            msg = msg + "<br/>Entered:<br/>";
+         } 
+         if (tuple.messages.length > 0) {
+               if (tuple.data.isEntry == "0" && tuple.markerType == "YELLOW"){
+                  msg = msg + "<br/>Alerts:<br/><ul>";
+               }
+               for (var i =0; i < tuple.messages.length; i++){
+                  msg = msg + "<li>" + tuple.messages[i] +"</li>";
+               }
+              msg = msg +"</ul>";
+            } else {
+               msg = msg + "<br/>Location:<br/>"+ tuple.latitude + "," + tuple.longitude;
+            }
+          
+      }
+      return msg;
+
 }
 
 createPopup = function(feature) {
    feature.popup = new OpenLayers.Popup.FramedCloud("Popup",
                            feature.geometry.getBounds().getCenterLonLat(),
-                           null,
-                           '<div>' + makePopupText(feature.attributes.spltuple) + '</div>',
+                           new OpenLayers.Size(200, 300),
+                           '<p >' + makePopupText(feature.attributes.spltuple) + '</p>',
                            null,
                            false,
                            function() { controls['selector'].unselectAll(); }
                         );
+   //feature.popup.maxSize = new OpenLayers.Size(250,400);
    feature.layer.map.addPopup(feature.popup);
 }
 
@@ -111,6 +126,7 @@ addMarkersToLayer = function(markerLayers, markers, response) {
    			
    for (var i = 0; i < tuples.length; i++) {
       var tuple = tuples[i];
+      tuple.markerType = tuple.markerType.trim();
       var markerType = getMarkerGraphic(tuple.markerType);
 
       var markerLayer = getMarkerLayer(markerLayers, defaultMarkerLayer, tuple.layer);

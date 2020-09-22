@@ -20,4 +20,4 @@ def map():
     return application.send_static_file('simplemap.html')
 
 if __name__ == "__main__":
-    application.run(ssl_context='adhoc')
+    application.run()

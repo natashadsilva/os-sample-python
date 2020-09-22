@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Copyright (C) 2015, International Business Machines Corporation  -->
+<!-- Copyright (C) 2020, International Business Machines Corporation  -->
 <!-- All Rights Reserved                                            -->
 <html>
 <head>
@@ -15,11 +15,57 @@ html,body,#map-canvas {
   margin: 0;
   padding: 0;
   height: 100%;
+  font-size: 12pt;
 }
+
+
+.popup{
+  font-size: 10pt;
+}
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('../fonts/bold/ibmplexsans-regular.eot?') format('eot'), url('../fonts/bold/ibmplexsans-regular.woff2') format('woff2'), url('../fonts/bold/ibmplexsans-regular.woff') format('woff'), url('../fonts/bold/ibmplexsans-regular.ttf') format('truetype');
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('../fonts/bold/ibmplexsans-bold.eot?') format('eot'), url('../fonts/bold/ibmplexsans-bold.woff2') format('woff2'), url('../fonts/bold/ibmplexsans-bold.woff') format('woff'), url('../fonts/bold/ibmplexsans-bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+em {
+  font-size: 10pt;
+}
+
+body {
+  font-family: 'IBM Plex Sans', Arial, sans-serif;
+}
+
 </style>
+
 </head>
 <body>
   <div id="test"></div>
+  <div>
+    <h2>San Francisco Bus Alerts Dashboard</h2>
+    <p><em>Bus data is updated every 30-60 seconds</em></p>
+    <h3>Legend</h3>
+    <table>
+      <tr>
+        <td><img src="marker-blue.png"></td><td>Just entered a fence</td>
+      </tr>
+      <tr>
+        <td><img src="marker-green.png"></td><td>Not in any fences</td>
+      </tr>
+      <tr>
+        <td><img src="marker-gold.png"></td><td>Moving within a fence</td>
+      </tr>
+    </table>
+
+  </div>
+  <br/>
   <div id="map-canvas"></div>
   <script>
       
@@ -124,8 +170,8 @@ html,body,#map-canvas {
            addMarkersToLayer(markerLayers, markers, response);
       }   
       
-      var url = prompt("Streams App URL");
-      var urldata = "/data?url="+url
+  //    var url = prompt("Streams App URL");
+      var urldata = "/data?url="+ "https://ndproxy-tooling-54-cpd.apps.cpstreamsx6.cp.fyre.ibm.com/";//url
       // retrieve data from HTTPTupleView
       periodicUpdateJSON(urldata, updatePeriod, _addMarkersToMap);
     }
