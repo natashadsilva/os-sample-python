@@ -63,7 +63,7 @@ createPopup = function(feature) {
                            false,
                            function() { controls['selector'].unselectAll(); }
                         );
-   //feature.popup.maxSize = new OpenLayers.Size(250,400);
+   feature.popup.maxSize = new OpenLayers.Size(250,400);
    feature.layer.map.addPopup(feature.popup);
 }
 
