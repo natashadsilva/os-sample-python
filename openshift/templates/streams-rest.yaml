@@ -1,0 +1,171 @@
+--- 
+apiVersion: v1
+kind: Template
+labels: 
+  template: streams-rest-viewer
+message: |-
+    The following service(s) have been created in your project: ${NAME}.
+    
+    For more information about using this template, see https://ibm.biz/streams-job-service
+metadata: 
+  annotations: 
+    description: "A generic Flask application for viewing data from a  Streams job running as a Cloud Pak for Data service."
+    iconClass: icon-python
+    openshift.io/display-name: "REST Viewer for Streams Jobs"
+    openshift.io/documentation-url: "https://ibm.biz/streams-job-service"
+    openshift.io/long-description: "This template defines resources needed to develop a Python Flask application, including a build configuration and application deployment configuration."
+    openshift.io/provider-display-name: IBMStreams
+    openshift.io/support-url: "https://ibm.biz/streams-job-service"
+    tags: "streams,streaming,rest"
+  name: streams-rest-viewer
+objects: 
+  - 
+    apiVersion: v1
+    kind: ImageStream
+    metadata: 
+      annotations: 
+        description: "Displays streaming data from a Streams job running as a Cloud Pak for Data service."
+      name: "${NAME}-streams-rest-viewer"
+  - 
+    apiVersion: v1
+    kind: BuildConfig
+    metadata: 
+      annotations: 
+        description: "Defines how to build the rest viewer image."
+        template.alpha.openshift.io/wait-for-ready: "true"
+      name: "${NAME}-streams-rest-viewer"
+    spec: 
+      output: 
+        to: 
+          kind: ImageStreamTag
+          name: "${NAME}-streams-rest-viewer:latest"
+      source: 
+        contextDir: "${CONTEXT_DIR}"
+        git: 
+          ref: "${SOURCE_REPOSITORY_REF}"
+          uri: "${SOURCE_REPOSITORY_URL}"
+        type: Git
+      strategy: 
+        sourceStrategy: 
+          from: 
+            kind: ImageStreamTag
+            name: "python:3.6"
+            namespace: "${NAMESPACE}"
+        type: Source
+  - 
+    apiVersion: v1
+    kind: DeploymentConfig
+    metadata: 
+      annotations: 
+        description: "IBM Streams rest viewer"
+        template.alpha.openshift.io/wait-for-ready: "true"
+      name: "${NAME}"
+    spec: 
+      replicas: 1
+      selector: 
+        name: "${NAME}"
+      strategy: 
+        type: Rolling
+      template: 
+        metadata: 
+          labels: 
+            name: "${NAME}"
+          name: "${NAME}"
+        spec: 
+          containers: 
+            - 
+              env: 
+                - 
+                  name: STREAMS_REST_VIEWER_NAME
+                  value: "${NAME}"
+              image: "${NAME}-streams-rest-viewer:latest"
+              name: streams-rest-viewer
+              resources: 
+                limits: 
+                  memory: "${MEMORY_LIMIT}"
+          volumes: 
+            - 
+              emptyDir: {}
+              name: data
+      triggers: 
+        - 
+          imageChangeParams: 
+            automatic: true
+            containerNames: 
+              - streams-rest-viewer
+            from: 
+              kind: ImageStreamTag
+              name: "${NAME}-streams-rest-viewer:latest"
+          type: ImageChange
+        - 
+          imageChangeParams: 
+            automatic: true
+            containerNames: 
+              - streams-rest-viewer
+            from: 
+              kind: ImageStreamTag
+              name: "${NAME}-streams-rest-viewer:latest"
+          type: ImageChange
+        - 
+          type: ConfigChange
+  - 
+    apiVersion: v1
+    kind: Service
+    metadata: 
+      annotations: 
+        description: "Exposes IBM Streams application endpoints"
+      name: "${NAME}"
+    spec: 
+      ports: 
+        - 
+          name: web
+          port: 8443
+          targetPort: 8443
+      selector: 
+        name: "${NAME}"
+      type: NodePort
+parameters: 
+  - 
+    description: "The name assigned to all of the frontend objects defined in this template."
+    displayName: Name
+    name: NAME
+    required: true
+    value: streams-rest-viewer
+  - 
+    description: "Secret containing STREAMS_USERNAME and STREAMS_PASSWORD for the user to connect to the Streams REST api."
+    displayName: "Streams user secret"
+    name: STREAMS_USER_SECRET
+    required: true
+    value: streams-user
+  - 
+    description: "The OpenShift Namespace where the ImageStream resides."
+    displayName: Namespace
+    name: NAMESPACE
+    required: true
+    value: openshift
+  - 
+    description: "The URL of the repository with your application source code."
+    displayName: "Git Repository URL"
+    name: SOURCE_REPOSITORY_URL
+    required: true
+    value: "https://github.com/natashadsilva/os-sample-python"
+  - 
+    description: "Set this to a branch name, tag or other ref of your repository if you are not using the default branch."
+    displayName: "Git Reference"
+    name: SOURCE_REPOSITORY_REF
+  - 
+    description: "Set this to the relative path to your project if it is not in the root of your repository."
+    displayName: "Context Directory"
+    name: CONTEXT_DIR
+  - 
+    description: "Github trigger secret.  A difficult to guess string encoded as part of the webhook URL.  Not encrypted."
+    displayName: "GitHub Webhook Secret"
+    from: "[a-zA-Z0-9]{40}"
+    generate: expression
+    name: GITHUB_WEBHOOK_SECRET
+  - 
+    description: "A secret string used to configure the Generic webhook."
+    displayName: "Generic Webhook Secret"
+    from: "[a-zA-Z0-9]{40}"
+    generate: expression
+    name: GENERIC_WEBHOOK_SECRET
