@@ -38,13 +38,6 @@ def get_columns():
         return dict(items=[])
 
 
-@application.route("/data")
-def tuples():
-    url = request.args.get("url")
-    resp = requests.get(url +"/Visualization/MapViewer/ports/input/0/tuples",verify=False)
-    if (resp.status_code >= 200 and resp.status_code < 300):
-        return jsonify(resp.json())
-
 @application.route("/map")
 def map():
     return application.send_static_file('simplemap.html')
@@ -76,5 +69,5 @@ def table_data():
         print(resp.text)
         abort(resp.status_code, resp.text)
 
-if __name__ == "__main__":
-    application.run(port=5000)
+#if __name__ == "__main__":
+application.run()
