@@ -1,0 +1,21 @@
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('../fonts/bold/ibmplexsans-regular.eot?') format('eot'), url('../fonts/bold/ibmplexsans-regular.woff2') format('woff2'), url('../fonts/bold/ibmplexsans-regular.woff') format('woff'), url('../fonts/bold/ibmplexsans-regular.ttf') format('truetype');
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('../fonts/bold/ibmplexsans-bold.eot?') format('eot'), url('../fonts/bold/ibmplexsans-bold.woff2') format('woff2'), url('../fonts/bold/ibmplexsans-bold.woff') format('woff'), url('../fonts/bold/ibmplexsans-bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+
+body {
+  font-family: 'IBM Plex Sans', Arial, sans-serif;
+}
+
+.popup{
+  overflow: auto;
+}

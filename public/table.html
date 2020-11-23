@@ -1,0 +1,140 @@
+<html>
+    
+
+<head>
+    <title>Generic REST viewer</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&display=swap" rel="stylesheet"> 
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.css">
+  <style>
+      body{
+          font-family: 'IBM Plex Sans';
+      }
+      #url{
+          width: 100%;
+      }
+  </style>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.js"></script>
+<script type="text/javascript">
+
+var table; 
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+function hasTimeStamp(obj){
+    var ts = null;
+    if (obj.hasOwnProperty("time")){
+        return "time";
+    } 
+    if (obj.hasOwnProperty("timestamp")){
+        return "timestamp";
+    }
+    if (obj.hasOwnProperty("timeStamp")){
+        return "timeStamp";
+    }
+    return null;
+}
+function parseItems(obj) {
+    var parsed = "";
+    if (obj.hasOwnProperty("jsonString")){
+        parsed = JSON.parse(obj.jsonString);
+    } else if (obj.hasOwnProperty("items") ){
+        parsed = JSON.parse(obj.items);
+    } else {
+        parsed = obj;
+    }
+    var tsAttr = hasTimeStamp(parsed);
+    if (tsAttr != null){
+        //convert ts to readable
+        ts_in_ms = parsed[tsAttr] * 1000;
+        parsed[tsAttr] = new Date(ts_in_ms).toLocaleString();
+    }
+    return parsed;
+}
+ function loadTable(url, user, pwd) {
+    $.post({
+        data: JSON.stringify({"endpoint_url": url, "u": user, "p": pwd}),
+        url: "/columns",
+        contentType: 'application/json; charset=utf-8',
+        success: function( data ) {
+            if (!data.hasOwnProperty("items")){
+                $("#nodata").html("<strong>This endpoint is not producing data, please try again later.</strong>")
+                return;
+            }
+            if (data.hasOwnProperty("items") && data.items.length ==0 ){
+                $("#nodata").html("<strong>This endpoint is not producing data, please try again later.</strong>")
+                return;
+            }
+            $("#nodata").html("<br/>")
+            columnNames = Object.keys(data.items)
+            columns =[];
+            for (var i in columnNames) {
+                  columns.push({"data": columnNames[i], 
+                    title: capitalizeFirstLetter(columnNames[i])});
+             }
+             table= $('#rest_data').DataTable( {
+               ajax:{
+                   "method": "POST",
+                   "url": "/data",
+                   "data": {"endpoint_url": url, "u": user, "p": pwd},
+                    "dataSrc": function(data){
+                        lizt =  data.items.map(parseItems)
+                        data.items =lizt;
+                        $('#last_update').html("<strong>Last update: " + new Date() +"</strong>");
+                        return lizt;
+                    }
+                },
+                pageLength: 100,
+                columns: columns,
+          });
+
+          setInterval( function () {
+                table.ajax.reload( null, false ); // user paging is not reset on reload
+                },
+            5000
+          );
+
+        }
+    });
+   
+    
+}
+$(document).ready(function() {
+
+    $( "#login" ).submit(function(e) {
+        e.preventDefault();
+    var url = $('#url').val();
+    var user = $('#username').val();
+    var pass = $('#pwd').val();
+    loadTable(url, user, pass);
+});
+})
+
+
+</script>
+</head>
+<body style="background-color: aliceblue;"><div  style="margin: 15px; width:80%" >
+    <h3>Data Viewer</h3>
+    <h4>Enter the endpoint to load</h4>
+    <form action="" method="POST" id="login">
+        <label for="fname">Endpoint</label>
+        <input type="text" id="url" name="url"><br/>
+  
+        <h5>Credentials</h5>
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" value="admin"/><br/>
+        <label for="pwd">Password</label>
+          <input type="password" id="pwd" name="pwd" value="password"/><br/>
+          <input type="submit" id="loadurl" value="Submit"></input>
+        </form>
+        <p id="nodata"><br/></p>
+        <p id="last_update"><br/></p>
+    <table id="rest_data" class="table table-striped table-bordered display compact" style="width:100%">
+       
+    </table>
+    </div>
+</body>
+</html>
