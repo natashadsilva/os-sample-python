@@ -84,8 +84,7 @@ objects:
                 limits: 
                   memory: "${MEMORY_LIMIT}"
           volumes: 
-            - 
-              emptyDir: {}
+            - emptyDir: {}
               name: data
       triggers: 
         - 
