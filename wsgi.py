@@ -69,5 +69,6 @@ def table_data():
         print(resp.text)
         abort(resp.status_code, resp.text)
 
-#if __name__ == "__main__":
-application.run()
+
+if __name__ == '__main__':
+    app.run()
