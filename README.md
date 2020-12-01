@@ -19,7 +19,7 @@ Notes:
 ## Deploy to OpenShift:
 
 
-`oc new-app https://github.com/natashadsilva/os-sample-python.git --name flaskdemo`
+`oc new-app https://github.com/natashadsilva/streams-rest-viewer.git --name flaskdemo`
 
 `oc expose svc/flaskdemo`
 
