@@ -1,37 +1,31 @@
-# Flask Sample Application
+# Streams REST Data Viewer Application
 
-This repository provides a sample Python web application implemented using the Flask web framework and hosted using ``gunicorn``. It is intended to be used to demonstrate deployment of Python web applications to OpenShift 3.
+## Run locally:
 
-## Implementation Notes
+Install requirements: ` pip install -r requirements.txt`
 
-This sample Python application relies on the support provided by the default S2I builder for deploying a WSGI application using the ``gunicorn`` WSGI server. The requirements which need to be satisfied for this to work are:
+Run: 
 
-* The WSGI application code file needs to be named ``wsgi.py``.
-* The WSGI application entry point within the code file needs to be named ``application``.
-* The ``gunicorn`` package must be listed in the ``requirements.txt`` file for ``pip``.
+`python wsgi.py`
 
-In addition, the ``.s2i/environment`` file has been created to allow environment variables to be set to override the behaviour of the default S2I builder for Python.
+Go to `http://127.0.0.1:5000/tables` in your browser.
 
-* The environment variable ``APP_CONFIG`` has been set to declare the name of the config file for ``gunicorn``.
+Enter the Streams endpoint URL and the credentials and click *Submit.*
 
-## Deployment Steps
+Notes:
+- To retreive data from a new URL, reload the page or open a new tab. 
+- If you get an error popup from DataTables, reload the page.
 
-To deploy this sample Python web application from the OpenShift web console, you should select ``python:2.7``, ``python:3.3``, ``python:3.4`` or ``python:latest``, when using _Add to project_. Use of ``python:latest`` is the same as having selected the most up to date Python version available, which at this time is ``python:3.4``.
+## Deploy to OpenShift:
 
-The HTTPS URL of this code repository which should be supplied to the _Git Repository URL_ field when using _Add to project_ is:
 
-* https://github.com/OpenShiftDemos/os-sample-python.git
+`oc new-app https://github.com/natashadsilva/os-sample-python.git --name flaskdemo`
 
-If using the ``oc`` command line tool instead of the OpenShift web console, to deploy this sample Python web application, you can run:
+`oc expose svc/flaskdemo`
 
-```
-oc new-app https://github.com/OpenShiftDemos/os-sample-python.git
-```
+Open <cluster url>/tables
 
-In this case, because no language type was specified, OpenShift will determine the language by inspecting the code repository. Because the code repository contains a ``requirements.txt``, it will subsequently be interpreted as including a Python application. When such automatic detection is used, ``python:latest`` will be used.
+After editing, push to GitHub
 
-If needing to select a specific Python version when using ``oc new-app``, you should instead use the form:
+Use `oc start-build flaskdemo` to refresh
 
-```
-oc new-app python:2.7~https://github.com/OpenShiftDemos/os-sample-python.git
-```
