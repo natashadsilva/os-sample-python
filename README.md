@@ -1,4 +1,4 @@
-# Streams REST Data Viewer Application
+-# Streams REST Data Viewer Application
 
 ## Run locally:
 

@@ -38,17 +38,7 @@ def get_columns():
         return dict(items=[])
 
 
-@application.route("/map")
-def map():
-    return application.send_static_file('simplemap.html')
-
-@application.route("/netflow")
-def netflow_ui():
-    return application.send_static_file('netflow/index.html')
-
-
-
-@application.route("/tables")
+@application.route("/")
 def table():
     return application.send_static_file('table.html')
 
