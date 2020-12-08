@@ -20,24 +20,26 @@
 <script type="text/javascript">
 
 var table; 
-
+var formatTime = false;
+var tsAttr = "";
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
-function hasTimeStamp(obj){
+function hasTimeStamp(columnNames){
     var ts = null;
-    if (obj.hasOwnProperty("time")){
+    if (columnNames.includes("time")){
         return "time";
     } 
-    if (obj.hasOwnProperty("timestamp")){
+    if (columnNames.includes("timestamp")){
         return "timestamp";
     }
-    if (obj.hasOwnProperty("timeStamp")){
+    if (columnNames.includes("timeStamp")){
         return "timeStamp";
     }
     return null;
 }
 function parseItems(obj) {
+
     var parsed = "";
     if (obj.hasOwnProperty("jsonString")){
         parsed = JSON.parse(obj.jsonString);
@@ -46,11 +48,14 @@ function parseItems(obj) {
     } else {
         parsed = obj;
     }
-    var tsAttr = hasTimeStamp(parsed);
-    if (tsAttr != null){
-        //convert ts to readable
-        ts_in_ms = parsed[tsAttr] * 1000;
-        parsed[tsAttr] = new Date(ts_in_ms).toLocaleString();
+
+    //Check if the element has a timestamp attribute
+    if (formatTime){
+        if (Number.isInteger(parsed[tsAttr])){ 
+            //convert ts to readable
+            ts_in_ms = parsed[tsAttr] * 1000;
+            parsed[tsAttr] = new Date(ts_in_ms).toLocaleString();
+        }
     }
     return parsed;
 }
@@ -75,14 +80,19 @@ function parseItems(obj) {
                   columns.push({"data": columnNames[i], 
                     title: capitalizeFirstLetter(columnNames[i])});
              }
+             tsAttr = hasTimeStamp(columnNames);
+             if (tsAttr != null){
+                formatTime = true;
+             }
              table= $('#rest_data').DataTable( {
                ajax:{
                    "method": "POST",
                    "url": "/data",
                    "data": {"endpoint_url": url, "u": user, "p": pwd},
                     "dataSrc": function(data){
+                        // parse each entry in the returned array
                         lizt =  data.items.map(parseItems)
-                        data.items =lizt;
+                        data.items = lizt;
                         $('#last_update').html("<strong>Last update: " + new Date() +"</strong>");
                         return lizt;
                     }
