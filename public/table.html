@@ -2,7 +2,7 @@
     
 
 <head>
-    <title>Generic REST viewer</title>
+    <title>Generic Streaming Data Viewer</title>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"> 
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&display=swap" rel="stylesheet"> 
@@ -127,17 +127,17 @@ $(document).ready(function() {
 </script>
 </head>
 <body style="background-color: aliceblue;"><div  style="margin: 15px; width:80%" >
-    <h3>Data Viewer</h3>
-    <h4>Enter the endpoint to load</h4>
+    <h2>Streaming Data Viewer</h2>
+    <h4>Enter the endpoint URL and credentials to start displaying data.</h4>
     <form action="" method="POST" id="login">
         <label for="fname">Endpoint</label>
         <input type="text" id="url" name="url"><br/>
   
-        <h5>Credentials</h5>
+        <h4>Cloud Pak for Data Credentials</h4>
         <label for="username">Username</label>
-        <input type="text" id="username" name="username" value="admin"/><br/>
-        <label for="pwd">Password</label>
-          <input type="password" id="pwd" name="pwd" value="password"/><br/>
+        <input type="text" id="username" name="username" value="admin"/><br/><br/>
+        <label for="pwd">Password&nbsp;</label>
+          <input type="password" id="pwd" name="pwd" value="password"/><br/><br/>
           <input type="submit" id="loadurl" value="Submit"></input>
         </form>
         <p id="nodata"><br/></p>

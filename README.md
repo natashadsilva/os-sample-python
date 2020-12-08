@@ -1,4 +1,8 @@
--# Streams REST Data Viewer Application
+# Streams REST Data Viewer Application
+
+This is a demo Python web app that displays streaming data from any Streams job running as a service in Cloud Pak for Data. Tuples sent to the `EndpointSink` operator are continuously retreived and updated in a table.
+
+See [this blog post](https://ibm.biz/streams-job-service) for details about this feature.
 
 ## Run locally:
 
@@ -13,19 +17,36 @@ Run Locally:
 
 
 Notes:
+
+- Changes made to the client code (HTML/JS) are refreshed without restarting the server
 - To retreive data from a new URL, reload the page or open a new tab. 
 - If you get an error popup from DataTables, reload the page.
 
 ## Deploy to OpenShift:
 
 
-`oc new-app https://github.com/natashadsilva/streams-rest-viewer.git --name flaskdemo`
+`oc new-app https://github.com/natashadsilva/streams-rest-viewer.git --name streamsdemo`
 
-`oc expose svc/flaskdemo`
+`oc expose svc/streamsdemo`
 
-Open <cluster url>/tables
+The app's route:
 
-After editing, push to GitHub
+`oc get route streamsdemo`
 
-Use `oc start-build flaskdemo` to refresh
+Will print something like:
+
+```
+NAME           HOST/PORT                                                 PATH   SERVICES       PORT       TERMINATION   WILDCARD
+streamsdemo    streamsdemo-mynamespace.apps.cpstreamsx2.cp.host.com               streamsdemo     8080-tcp                   None
+
+```
+
+Open the URl under `HOST/PORT` column.  
+
+
+### Making changes
+
+After editing, push to GitHub.
+
+Use `oc start-build streamsdemo` to pull the latest code.
 
