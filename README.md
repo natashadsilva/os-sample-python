@@ -2,7 +2,15 @@
 
 This is a demo Python web app that displays streaming data from any Streams job running as a service in Cloud Pak for Data. Tuples sent to the `EndpointSink` operator are continuously retreived and updated in a table.
 
-See [this blog post](https://ibm.biz/streams-job-service) for details about this feature.
+See [this blog post](https://ibm.biz/streams-job-service) for details about the Streams jobs as a service feature.
+
+
+This app is a way to quickly view data from any Streams job that uses the `EndpointSink` operator. All you need are the Cloud Pak for Data credentials and the URL for the endpoint. 
+
+_App displaying data from a Streams application_
+![](images/restviewer.gif)
+
+
 
 ## Run locally:
 
