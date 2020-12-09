@@ -112,7 +112,7 @@ function showMap(server_url, endpoint, username, password){
             $("#nodata").html("<br/>")
             columnNames = Object.keys(data.items)
             columns =[];
-            let doMap = $("#checked").prop("checked") == true;
+            let doMap = $("#render_map").prop("checked") == true;
              if (hasLatLon(columnNames) && doMap){
                  server_url  = "/data";
                 

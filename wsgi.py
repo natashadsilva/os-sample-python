@@ -46,7 +46,7 @@ def get_columns():
 
 @application.route("/")
 def table():
-    return application.send_static_file('table.html')
+    return application.send_static_file('index.html')
 
 
 ## This is the endpoint that acts as a proxy between the web client
