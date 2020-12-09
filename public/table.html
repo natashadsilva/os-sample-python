@@ -15,13 +15,23 @@
       #url{
           width: 100%;
       }
+      #nodata{
+          color: orange;
+          font-size: 18px;
+      }
   </style>
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/lib/OpenLayers.js"></script>
+<script src="js/openlayersutils.js"></script>
+<script src="js/initMap.js"></script>
+
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.js"></script>
 <script type="text/javascript">
 
 var table; 
 var formatTime = false;
 var tsAttr = "";
+var updatePeriod = 5; 
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
@@ -38,6 +48,17 @@ function hasTimeStamp(columnNames){
     }
     return null;
 }
+function hasLatLon(columnNames){
+
+    if (columnNames.includes("longitude") && columnNames.includes("latitude")){
+        return true;
+    } 
+    if (columnNames.includes("LONGITUDE") && columnNames.includes("LATITUDE")){
+        return true;
+    }
+
+}
+
 function parseItems(obj) {
 
     var parsed = "";
@@ -59,11 +80,26 @@ function parseItems(obj) {
     }
     return parsed;
 }
- function loadTable(url, user, pwd) {
-    $.post({
-        data: JSON.stringify({"endpoint_url": url, "u": user, "p": pwd}),
+
+function showMap(server_url, endpoint, username, password){
+    const params = JSON.stringify({"endpoint_url": endpoint, "u": username, "p": password});
+    $("#map-canvas").append("<h3>Map Data</h3>");
+    createMap(server_url, params);
+}
+
+
+ function loadTable(endpoint, user, pwd) {
+    if (!endpoint || !user || !pwd){
+        $("#nodata").html("<strong>Please fill in all fields.</strong>");
+        return;
+    }
+    $("#nodata").html("");
+
+    var jqReq = $.post({
+        data: JSON.stringify({"endpoint_url": endpoint, "u": user, "p": pwd}),
         url: "/columns",
         contentType: 'application/json; charset=utf-8',
+       
         success: function( data ) {
             if (!data.hasOwnProperty("items")){
                 $("#nodata").html("<strong>This endpoint is not producing data, please try again later.</strong>")
@@ -76,7 +112,36 @@ function parseItems(obj) {
             $("#nodata").html("<br/>")
             columnNames = Object.keys(data.items)
             columns =[];
-            for (var i in columnNames) {
+            let doMap = $("#checked").prop("checked") == true;
+             if (hasLatLon(columnNames) && doMap){
+                 server_url  = "/data";
+                
+                 showMap(server_url, endpoint, user, pwd);
+             } else {
+                showTables(columnNames, endpoint, user, pwd);
+            }
+        }
+    });
+   jqReq.fail( function(msg){
+            error = msg.responseText;
+            $("#nodata").html("<strong>Error communicating with server:</strong> <br/>"+ error);
+        });
+    
+}
+$(document).ready(function() {
+
+    $( "#login" ).submit(function(e) {
+        e.preventDefault();
+    var url = $('#url').val();
+    var user = $('#username').val();
+    var pass = $('#pwd').val();
+    loadTable(url, user, pass);
+});
+})
+
+function showTables(columnNames, endpoint, user, pwd){
+    
+    for (var i in columnNames) {
                   columns.push({"data": columnNames[i], 
                     title: capitalizeFirstLetter(columnNames[i])});
              }
@@ -88,7 +153,8 @@ function parseItems(obj) {
                ajax:{
                    "method": "POST",
                    "url": "/data",
-                   "data": {"endpoint_url": url, "u": user, "p": pwd},
+                   "dataType": "json",
+                   "data": {"endpoint_url": endpoint, "u": user, "p": pwd},
                     "dataSrc": function(data){
                         // parse each entry in the returned array
                         lizt =  data.items.map(parseItems)
@@ -104,26 +170,10 @@ function parseItems(obj) {
           setInterval( function () {
                 table.ajax.reload( null, false ); // user paging is not reset on reload
                 },
-            5000
+            updatePeriod * 1000
           );
 
-        }
-    });
-   
-    
 }
-$(document).ready(function() {
-
-    $( "#login" ).submit(function(e) {
-        e.preventDefault();
-    var url = $('#url').val();
-    var user = $('#username').val();
-    var pass = $('#pwd').val();
-    loadTable(url, user, pass);
-});
-})
-
-
 </script>
 </head>
 <body style="background-color: aliceblue;"><div  style="margin: 15px; width:80%" >
@@ -138,13 +188,24 @@ $(document).ready(function() {
         <input type="text" id="username" name="username" value="admin"/><br/><br/>
         <label for="pwd">Password&nbsp;</label>
           <input type="password" id="pwd" name="pwd" value="password"/><br/><br/>
+          
+        <input type="checkbox" id="render_map" name="render_map" checked/>
+        <label for="render_map">Show a map for geospatial data&nbsp;</label><br/><br/>
           <input type="submit" id="loadurl" value="Submit"></input>
         </form>
+
         <p id="nodata"><br/></p>
         <p id="last_update"><br/></p>
     <table id="rest_data" class="table table-striped table-bordered display compact" style="width:100%">
        
     </table>
+        
+  <div id="map-canvas">
+
+</div>
     </div>
+
+
+
 </body>
 </html>

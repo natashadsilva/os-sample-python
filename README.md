@@ -7,6 +7,10 @@ See [this blog post](https://ibm.biz/streams-job-service) for details about the 
 
 This app is a way to quickly view data from any Streams job that uses the `EndpointSink` operator. All you need are the Cloud Pak for Data credentials and the URL for the endpoint. 
 
+## Features
+
+ -  Automatically renders data containing latitude/longitude as a map
+
 _App displaying data from a Streams application_
 ![](images/restviewer.gif)
 
