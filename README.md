@@ -37,11 +37,16 @@ Notes:
 ## Deploy to OpenShift:
 
 
-`oc new-app https://github.com/natashadsilva/streams-rest-viewer.git --name streamsdemo`
+```
+oc new-app https://github.com/natashadsilva/streams-rest-viewer.git --name streamsdemo
 
-`oc expose svc/streamsdemo`
+oc create route edge  --service=streamsdemo
 
-The app's route:
+
+```
+
+
+Show The app's route:
 
 `oc get route streamsdemo`
 
@@ -53,7 +58,7 @@ streamsdemo    streamsdemo-mynamespace.apps.cpstreamsx2.cp.host.com             
 
 ```
 
-Open the URl under `HOST/PORT` column.  
+Open the URl under `https://<url>` using the URL under the HOST/PORT column.  
 
 
 ### Making changes
